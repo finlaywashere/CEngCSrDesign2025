@@ -8,7 +8,7 @@
 
 #define ON_LINE_VALUE 1
 
-#define ITER_COUNT 4
+#define ITER_COUNT 40
 #define REACQUIRE_TIME 1000
 
 int leftSpeed = 0;
@@ -18,6 +18,7 @@ AF_DCMotor left(3);
 AF_DCMotor right(4);
 
 bool checkLine(){
+  // Check if we are on the line
   int sensorVal = digitalRead(SENSOR_PIN);
   Serial.print("Sensor value: ");
   Serial.println(sensorVal);
@@ -25,6 +26,7 @@ bool checkLine(){
 }
 
 void motorsOff(){
+  // Stop
   left.setSpeed(OFF_SPEED);
   right.setSpeed(OFF_SPEED);
   left.run(RELEASE);
@@ -32,12 +34,14 @@ void motorsOff(){
 }
 
 void motorsLeft(){
+  // Go left
   left.setSpeed(SLOW_SPEED);
   right.setSpeed(OFF_SPEED);
   left.run(FORWARD);
   right.run(RELEASE);
 }
 void motorsRight(){
+  // Go right
   left.setSpeed(OFF_SPEED);
   right.setSpeed(SLOW_SPEED);
   left.run(RELEASE);
@@ -45,12 +49,14 @@ void motorsRight(){
 }
 
 void motorsForward(){
+  // Go forwards
   left.setSpeed(FAST_SPEED);
   right.setSpeed(FAST_SPEED);
   left.run(FORWARD);
   right.run(FORWARD);
 }
 void motorsBackwards(){
+  // Go back
   left.setSpeed(FAST_SPEED);
   right.setSpeed(FAST_SPEED);
   left.run(BACKWARD);
@@ -62,6 +68,7 @@ void reacquireLine(){
     return;
   }
   Serial.println("Reacquiring");
+  // Turns left and periodically checks if its above the line
   motorsLeft();
   for(int i = 0; i < ITER_COUNT; i++){
     delay(REACQUIRE_TIME/ITER_COUNT);
@@ -71,6 +78,7 @@ void reacquireLine(){
       return;
     }
   }
+  // Turns right and periodically checks if it is above the line
   motorsRight();
   for(int i = 0; i < ITER_COUNT * 2; i++){
     delay(REACQUIRE_TIME/ITER_COUNT);
@@ -84,12 +92,14 @@ void reacquireLine(){
 }
 
 void setup() {
+  // Start with motors off
   motorsOff();
   pinMode(SENSOR_PIN, INPUT);
   Serial.begin(115200);
 }
 
 void loop() {
+  // Find line and move forwards
   reacquireLine();
   motorsForward();
 }
